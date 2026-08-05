@@ -1,0 +1,87 @@
+# ==============================================================================
+# 1. Credentials & Environment (CRITICAL to block AI leakages)
+# ==============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+certs/
+secrets/
+connections.json
+config.json
+
+# ==============================================================================
+# 2. AI Tooling, Agents & System Prompts Context
+# ==============================================================================
+.claude/
+.cursor/
+.cline/
+.copilot/
+.entire/
+.uignore
+.aiignore
+
+# ==============================================================================
+# 3. Datasets, Model Weights & Large Media Caches
+# ==============================================================================
+data/
+!data/.keep
+*.bin
+*.pt
+*.onnx
+*.pkl
+*.h5
+*.model
+models/
+weights/
+embeddings_cache/
+vector_db/
+chroma_db/
+faiss_index/
+
+# ==============================================================================
+# 4. Runtimes & Virtual Environments (Python / Node)
+# ==============================================================================
+# Python runtimes
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+ENV/
+
+# Node runtimes (if building TS/JS skills)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ==============================================================================
+# 5. Testing, Logging & Profiling
+# ==============================================================================
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+logs/
+agent_runs/
+trace/
+langchain.log
+
+# ==============================================================================
+# 6. IDEs & Operating Systems
+# ==============================================================================
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
