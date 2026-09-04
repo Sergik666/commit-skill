@@ -41,7 +41,10 @@ class SkillFileTest(unittest.TestCase):
             self.assertIn(trigger, description)
 
     def test_only_expected_frontmatter_keys(self):
-        self.assertEqual(set(self.meta), {"name", "description"})
+        self.assertEqual(set(self.meta), {"name", "description", "version"})
+
+    def test_version_is_semver(self):
+        self.assertRegex(self.meta["version"], r"^\d+\.\d+\.\d+$")
 
     def test_body_documents_every_item(self):
         for item in ("1. Branch", "2. Commit", "3.1", "3.2", "4.1", "4.2"):
@@ -54,6 +57,8 @@ class SkillFileTest(unittest.TestCase):
         self.assertIn("3 to 15 words", body)
         self.assertIn("english", body)
         self.assertIn("blank line", body)
+        self.assertIn("capital letter", body)
+        self.assertIn("inline code", body)
 
     def test_validator_script_is_referenced_and_exists(self):
         self.assertIn("scripts/validate_output.py", self.text)

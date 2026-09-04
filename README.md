@@ -19,6 +19,11 @@ skills/commit-flow/scripts/validate_output.py  output self-check + CLI
 tests/                                       unittest suite (stdlib only)
 ```
 
+## Versioning
+
+`version:` in the SKILL.md frontmatter is semver. Bump the minor part when a
+rule changes, the patch part for wording fixes.
+
 ## Tests
 
 ```bash

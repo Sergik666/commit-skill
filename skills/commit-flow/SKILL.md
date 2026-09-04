@@ -1,6 +1,7 @@
 ---
 name: commit-flow
 description: Produce branch name, commit message, Redmine task (Textile) and GitHub PR (Markdown) for the current code changes. Use when the user asks to prepare a commit, a branch name, a Redmine task or a pull request description for what was just changed, or types /commit-flow with item numbers like "1 2", "1,4", "all". Do NOT use for actually running git commit/push or opening a PR.
+version: 1.1.0
 ---
 
 # commit-flow
@@ -65,35 +66,56 @@ its own line, paragraphs are separated by a blank line. What is *not*
 allowed is breaking a single paragraph mid-sentence just to keep lines
 short — one paragraph stays one continuous line of text, however long.
 
+**Hard capitalization rule:** items 2, 3.1 and 4.1 always start with a
+capital letter — `Add call for price form`, never `add call for price form`.
+This holds even when the first word is a technical name that is normally
+lowercase: capitalize it anyway, or reword so a normal word comes first.
+Item 1 (branch) is the exception: it stays all lowercase `kebab-case`.
+
+**Hard formatting rule:** items 3.2 and 4.2 always use the inline markup of
+their format — never plain unformatted prose. Every technical name (field,
+model, method, file, route, flag, config key, literal value) is inline code,
+and key terms of the change are bold:
+
+| | Textile (3.2) | Markdown (4.2) |
+|---|---|---|
+| inline code | `@product_id@` | `` `product_id` `` |
+| bold | `*call for price*` | `**call for price**` |
+| heading | `h3. Summary` | `## Summary` |
+| bullet | `* item` | `- item` |
+
+Do not mix the two syntaxes: `**bold**` is wrong in Textile, `@code@` is
+wrong in Markdown.
+
 Item rules:
 
 - **1. Branch** — short, lowercase, `kebab-case`, optional `feat/`-style prefix,
   max 50 characters, no spaces.
-- **2. Commit** — 3 to 15 words, imperative mood.
-- **3.1. Redmine title** — one line.
-- **3.2. Redmine description** — Textile, wrapped in a ```` ```textile ```` code block. Use `h3.`-style headings and blank-line-separated paragraphs as needed; each paragraph is one continuous line.
-- **4.1. PR title** — one line.
-- **4.2. PR description** — Markdown, wrapped in a ```` ```md ```` code block. Use `##`-style headings and blank-line-separated paragraphs as needed; each paragraph is one continuous line.
+- **2. Commit** — 3 to 15 words, imperative mood, starts with a capital letter.
+- **3.1. Redmine title** — one line, starts with a capital letter.
+- **3.2. Redmine description** — Textile, wrapped in a ```` ```textile ```` code block. Use `h3.`-style headings and blank-line-separated paragraphs as needed; each paragraph is one continuous line. Apply the Textile column of the formatting table above.
+- **4.1. PR title** — one line, starts with a capital letter.
+- **4.2. PR description** — Markdown, wrapped in a ```` ```md ```` code block. Use `##`-style headings and blank-line-separated paragraphs as needed; each paragraph is one continuous line. Apply the Markdown column of the formatting table above.
 
 ## 4. Output template
 
 Emit exactly this shape, skipping the items that were not requested:
 
     1. Branch: feat/price-request-form
-    2. Commit: add call for price request form to product page
+    2. Commit: Add call for price request form to product page
     3.1. Redmine title: Call for price request form
     3.2.
     ```textile
     h3. Summary
 
-    ... one continuous line of Textile per paragraph ...
+    Added the *call for price* form to @product.template@ ... one continuous line of Textile per paragraph ...
     ```
     4.1. PR title: Add call for price request form
     4.2.
     ```md
     ## Summary
 
-    ... one continuous line of Markdown per paragraph ...
+    Added the **call for price** form to `product.template` ... one continuous line of Markdown per paragraph ...
     ```
 
 No preamble, no closing remarks — just the items.
