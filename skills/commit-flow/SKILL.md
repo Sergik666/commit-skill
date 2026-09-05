@@ -1,7 +1,7 @@
 ---
 name: commit-flow
 description: Produce branch name, commit message, Redmine task (Textile) and GitHub PR (Markdown) for the current code changes. Use when the user asks to prepare a commit, a branch name, a Redmine task or a pull request description for what was just changed, or types /commit-flow with item numbers like "1 2", "1,4", "all". Do NOT use for actually running git commit/push or opening a PR.
-version: 1.1.0
+version: 1.2.0
 ---
 
 # commit-flow
@@ -87,6 +87,13 @@ and key terms of the change are bold:
 Do not mix the two syntaxes: `**bold**` is wrong in Textile, `@code@` is
 wrong in Markdown.
 
+**Hard formatting rule:** every item's value sits inside its own fenced code
+block, right under its label line — this is what gives each item its own
+"copy" button in the Claude Code UI. Every label line names the item, e.g.
+`3.2. Redmine description:`, not a bare `3.2.` — items 1, 2, 3.1 and 4.1 use
+a plain ` ``` ` fence (no language tag) around the single-line value; items
+3.2 and 4.2 keep their `textile`/`md` language tag as before.
+
 Item rules:
 
 - **1. Branch** — short, lowercase, `kebab-case`, optional `feat/`-style prefix,
@@ -101,17 +108,29 @@ Item rules:
 
 Emit exactly this shape, skipping the items that were not requested:
 
-    1. Branch: feat/price-request-form
-    2. Commit: Add call for price request form to product page
-    3.1. Redmine title: Call for price request form
-    3.2.
+    1. Branch:
+    ```
+    feat/price-request-form
+    ```
+    2. Commit:
+    ```
+    Add call for price request form to product page
+    ```
+    3.1. Redmine title:
+    ```
+    Call for price request form
+    ```
+    3.2. Redmine description:
     ```textile
     h3. Summary
 
     Added the *call for price* form to @product.template@ ... one continuous line of Textile per paragraph ...
     ```
-    4.1. PR title: Add call for price request form
-    4.2.
+    4.1. PR title:
+    ```
+    Add call for price request form
+    ```
+    4.2. PR description:
     ```md
     ## Summary
 

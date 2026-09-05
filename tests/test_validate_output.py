@@ -64,22 +64,32 @@ class ValidateTest(unittest.TestCase):
         self.assertEqual(joined.count("paragraph broken across multiple lines"), 2)
 
     def test_long_branch_name(self):
-        text = "1. Branch: " + "a" * 51
+        text = "1. Branch:\n```\n" + "a" * 51 + "\n```"
         self.assertIn("longer than 50 chars (51)", "\n".join(vo.validate(text, ("1",))))
 
     def test_commit_word_bounds(self):
-        self.assertEqual(vo.validate("2. Commit: add price form", ("2",)), [])
-        self.assertEqual(vo.validate("2. Commit: " + "w " * 15, ("2",)), [])
-        self.assertIn("2 words", "\n".join(vo.validate("2. Commit: add it", ("2",))))
-        self.assertIn("16 words", "\n".join(vo.validate("2. Commit: " + "w " * 16, ("2",))))
+        def commit(text):
+            return "2. Commit:\n```\n" + text + "\n```"
+
+        self.assertEqual(vo.validate(commit("add price form"), ("2",)), [])
+        self.assertEqual(vo.validate(commit("w " * 15), ("2",)), [])
+        self.assertIn("2 words", "\n".join(vo.validate(commit("add it"), ("2",))))
+        self.assertIn("16 words", "\n".join(vo.validate(commit("w " * 16), ("2",))))
+
+    def test_single_line_item_rejects_multiline_value(self):
+        text = "1. Branch:\n```\nfeat/x\nfeat/y\n```"
+        self.assertIn(
+            "item 1: value must be a single line inside the code block",
+            vo.validate(text, ("1",)),
+        )
 
     def test_empty_code_block(self):
-        text = "3.2.\n```textile\n```"
+        text = "3.2. Redmine description:\n```textile\n```"
         self.assertIn("item 3.2: empty description", vo.validate(text, ("3.2",)))
 
     def test_headings_and_paragraphs_are_allowed(self):
         text = (
-            "3.2.\n```textile\nh3. Summary\n\n"
+            "3.2. Redmine description:\n```textile\nh3. Summary\n\n"
             "One continuous paragraph of Textile text.\n\n"
             "h3. Details\n\nAnother continuous paragraph.\n```"
         )
@@ -87,14 +97,14 @@ class ValidateTest(unittest.TestCase):
 
     def test_paragraph_split_mid_sentence_is_rejected(self):
         text = (
-            "4.2.\n```md\n## Summary\n"
+            "4.2. PR description:\n```md\n## Summary\n"
             "This sentence is\nwrapped mid paragraph without a blank line.\n```"
         )
         errors = vo.validate(text, ("4.2",))
         self.assertTrue(any("paragraph broken across multiple lines" in e for e in errors))
 
     def test_missing_code_block_after_header(self):
-        errors = vo.validate("3.2.\nplain text, no fence", ("3.2",))
+        errors = vo.validate("3.2. Redmine description:\nplain text, no fence", ("3.2",))
         self.assertIn("item 3.2: missing", errors)
 
 
@@ -118,7 +128,7 @@ class CliTest(unittest.TestCase):
     def test_reads_stdin(self):
         result = subprocess.run(
             [sys.executable, str(SCRIPT), "--items", "1"],
-            input="1. Branch: feat/x\n", capture_output=True, text=True,
+            input="1. Branch:\n```\nfeat/x\n```\n", capture_output=True, text=True,
         )
         self.assertEqual(result.returncode, 0, result.stdout)
 

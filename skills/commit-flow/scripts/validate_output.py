@@ -15,13 +15,19 @@ import sys
 ALL_ITEMS = ("1", "2", "3.1", "3.2", "4.1", "4.2")
 
 BRANCH_RE = re.compile(r"^[a-z0-9]+(?:[-/.][a-z0-9]+)*$")
-PLAIN_RE = {
-    "1": re.compile(r"^1\.\s*Branch:\s*(.+)$"),
-    "2": re.compile(r"^2\.\s*Commit:\s*(.+)$"),
-    "3.1": re.compile(r"^3\.1\.\s*Redmine title:\s*(.+)$"),
-    "4.1": re.compile(r"^4\.1\.\s*PR title:\s*(.+)$"),
+
+# Every item is a label line followed by a fenced code block. 1, 2, 3.1, 4.1
+# take a plain (unlabelled) fence around a single-line value; 3.2 and 4.2
+# take a language-tagged fence around a multi-line document.
+HEADER_RE = {
+    "1": re.compile(r"^1\.\s*Branch:\s*$"),
+    "2": re.compile(r"^2\.\s*Commit:\s*$"),
+    "3.1": re.compile(r"^3\.1\.\s*Redmine title:\s*$"),
+    "3.2": re.compile(r"^3\.2\.\s*Redmine description:\s*$"),
+    "4.1": re.compile(r"^4\.1\.\s*PR title:\s*$"),
+    "4.2": re.compile(r"^4\.2\.\s*PR description:\s*$"),
 }
-BLOCK_HEADER_RE = {"3.2": re.compile(r"^3\.2\.\s*$"), "4.2": re.compile(r"^4\.2\.\s*$")}
+SINGLE_LINE_ITEMS = ("1", "2", "3.1", "4.1")
 BLOCK_LANG = {"3.2": "textile", "4.2": "md"}
 
 
@@ -50,18 +56,12 @@ def parse(text):
     i = 0
     while i < len(lines):
         line = lines[i].rstrip()
-        for item, pattern in PLAIN_RE.items():
-            match = pattern.match(line.strip())
-            if match:
-                found[item] = match.group(1).strip()
+        for item, pattern in HEADER_RE.items():
+            if pattern.match(line.strip()):
+                i, body, lang = _read_block(lines, i + 1)
+                found[item] = body
+                found[item + ":lang"] = lang
                 break
-        else:
-            for item, pattern in BLOCK_HEADER_RE.items():
-                if pattern.match(line.strip()):
-                    i, body, lang = _read_block(lines, i + 1)
-                    found[item] = body
-                    found[item + ":lang"] = lang
-                    break
         i += 1
     return found
 
@@ -109,6 +109,11 @@ def validate(text, items=ALL_ITEMS):
             errors.append(f"item {item}: missing")
         elif item not in items and present:
             errors.append(f"item {item}: not requested but present")
+
+    for item in SINGLE_LINE_ITEMS:
+        value = found.get(item)
+        if item in items and value and "\n" in value:
+            errors.append(f"item {item}: value must be a single line inside the code block")
 
     branch = found.get("1")
     if "1" in items and branch:

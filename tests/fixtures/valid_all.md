@@ -1,7 +1,16 @@
-1. Branch: feat/call-for-price-form
-2. Commit: Add call for price request form to product page
-3.1. Redmine title: Call for price request form on product page
-3.2.
+1. Branch:
+```
+feat/call-for-price-form
+```
+2. Commit:
+```
+Add call for price request form to product page
+```
+3.1. Redmine title:
+```
+Call for price request form on product page
+```
+3.2. Redmine description:
 ```textile
 h3. Summary
 
@@ -11,8 +20,11 @@ h3. Details
 
 The button is shown only for products with the @call_for_price@ flag enabled, and submissions are rate limited per session.
 ```
-4.1. PR title: Add call for price request form
-4.2.
+4.1. PR title:
+```
+Add call for price request form
+```
+4.2. PR description:
 ```md
 ## Summary
 
