@@ -30,6 +30,14 @@ HEADER_RE = {
 SINGLE_LINE_ITEMS = ("1", "2", "3.1", "4.1")
 BLOCK_LANG = {"3.2": "textile", "4.2": "md"}
 
+# Items 2, 3.2, 4.2 are drafts for the user's own commit/PR — no AI-attribution
+# signature belongs in them (see the "Hard rule" in SKILL.md).
+SIGNATURE_RE = re.compile(
+    r"generated with|co-authored-by:\s*claude|claude-session:|🤖",
+    re.IGNORECASE,
+)
+NO_SIGNATURE_ITEMS = ("2", "3.2", "4.2")
+
 
 def expand_items(raw):
     """Turn a user request like "1,3" or "all" into a tuple of item ids."""
@@ -144,6 +152,11 @@ def validate(text, items=ALL_ITEMS):
         value = found.get(item)
         if item in items and value is not None and not value:
             errors.append(f"item {item}: empty title")
+
+    for item in NO_SIGNATURE_ITEMS:
+        value = found.get(item)
+        if item in items and value and SIGNATURE_RE.search(value):
+            errors.append(f"item {item}: contains an AI-attribution signature, remove it")
 
     return errors
 

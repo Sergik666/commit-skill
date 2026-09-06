@@ -1,7 +1,7 @@
 ---
 name: commit-flow
 description: Produce branch name, commit message, Redmine task (Textile) and GitHub PR (Markdown) for the current code changes. Use when the user asks to prepare a commit, a branch name, a Redmine task or a pull request description for what was just changed, or types /commit-flow with item numbers like "1 2", "1,4", "all". Do NOT use for actually running git commit/push or opening a PR.
-version: 1.2.0
+version: 1.3.0
 ---
 
 # commit-flow
@@ -86,6 +86,12 @@ and key terms of the change are bold:
 
 Do not mix the two syntaxes: `**bold**` is wrong in Textile, `@code@` is
 wrong in Markdown.
+
+**Hard rule:** never include any AI-attribution/signature line in items 2,
+3.2 or 4.2 — no `🤖 Generated with [Claude Code]`, no `Co-Authored-By: Claude
+...`, no `Claude-Session:` line, no mention that the text was written by an
+agent/AI. These items are drafts for the user's own commit/PR, not something
+this skill submits itself.
 
 **Hard formatting rule:** every item's value sits inside its own fenced code
 block, right under its label line — this is what gives each item its own

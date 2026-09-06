@@ -107,6 +107,23 @@ class ValidateTest(unittest.TestCase):
         errors = vo.validate("3.2. Redmine description:\nplain text, no fence", ("3.2",))
         self.assertIn("item 3.2: missing", errors)
 
+    def test_ai_signature_in_commit_is_rejected(self):
+        text = "2. Commit:\n```\nAdd price form\n\n🤖 Generated with Claude Code\n```"
+        errors = vo.validate(text, ("2",))
+        self.assertTrue(any("AI-attribution signature" in e for e in errors))
+
+    def test_co_authored_by_claude_in_pr_description_is_rejected(self):
+        text = (
+            "4.2. PR description:\n```md\n## Summary\n\n"
+            "Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>\n```"
+        )
+        errors = vo.validate(text, ("4.2",))
+        self.assertTrue(any("AI-attribution signature" in e for e in errors))
+
+    def test_co_authored_by_human_is_allowed(self):
+        text = "2. Commit:\n```\nAdd price form, Co-Authored-By: Jane Doe\n```"
+        self.assertEqual(vo.validate(text, ("2",)), [])
+
 
 class CliTest(unittest.TestCase):
     def run_cli(self, path, items=None):
